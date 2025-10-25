@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # Blue Service (Primary)
+  app_blue:
+    image: ${BLUE_IMAGE}
+    container_name: bluegreen_app_blue
+    ports:
+      - "${BLUE_PORT}:${PORT}"
+    environment:
+      - PORT=${PORT}
+      - APP_POOL=blue
+      - RELEASE_ID=${RELEASE_ID_BLUE}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT}/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - bluegreen_network
+
+  # Green Service (Backup)
+  app_green:
+    image: ${GREEN_IMAGE}
+    container_name: bluegreen_app_green
+    ports:
+      - "${GREEN_PORT}:${PORT}"
+    environment:
+      - PORT=${PORT}
+      - APP_POOL=green
+      - RELEASE_ID=${RELEASE_ID_GREEN}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT}/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - bluegreen_network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: bluegreen_nginx
+    ports:
+      - "${NGINX_PORT}:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app_blue
+      - app_green
+    networks:
+      - bluegreen_network
+    command: ["nginx", "-g", "daemon off;"]
+
+networks:
+  bluegreen_network:
+    driver: bridge

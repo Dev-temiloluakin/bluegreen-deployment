@@ -1,0 +1,22 @@
+# Environment variables (contains sensitive data)
+.env
+
+# Generated nginx config (auto-generated from template)
+nginx.conf
+
+# Docker volumes and data
+data/
+volumes/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+*~
+
+# Editor backup files
+*.swp
+*.swo
+.vscode/
