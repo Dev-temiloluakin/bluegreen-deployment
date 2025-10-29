@@ -3,6 +3,7 @@ services:
   app_blue:
     image: ${BLUE_IMAGE}
     container_name: bluegreen_app_blue
+    restart: unless-stopped
     ports:
       - "${BLUE_PORT}:${PORT}"
     environment:
@@ -22,6 +23,7 @@ services:
   app_green:
     image: ${GREEN_IMAGE}
     container_name: bluegreen_app_green
+    restart: unless-stopped
     ports:
       - "${GREEN_PORT}:${PORT}"
     environment:
@@ -41,6 +43,7 @@ services:
   nginx:
     image: nginx:alpine
     container_name: bluegreen_nginx
+    restart: unless-stopped
     ports:
       - "${NGINX_PORT}:80"
     volumes:
