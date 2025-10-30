@@ -27,19 +27,14 @@ cp .env.example .env
 
 Edit `.env` and update with your actual image URLs:
 ```bash
-BLUE_IMAGE=your-actual-blue-image-url
-GREEN_IMAGE=your-actual-green-image-url
+BLUE_IMAGE= https://hub.docker.com/r/yimikaade/wonderful/tags
+GREEN_IMAGE= https://hub.docker.com/r/yimikaade/wonderful/tags
 ```
 
 ### 3. Start the services
 ```bash
 ./start.sh
 ```
-
-Or manually:
-```bash
-# Generate nginx config
-envsubst '${PORT}' < nginx.conf.template > nginx.conf
 
 # Start services
 docker compose up -d

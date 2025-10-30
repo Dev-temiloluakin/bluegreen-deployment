@@ -1,5 +1,4 @@
 services:
-  # Blue Service (Primary)
   app_blue:
     image: ${BLUE_IMAGE}
     container_name: bluegreen_app_blue
@@ -19,7 +18,6 @@ services:
     networks:
       - bluegreen_network
 
-  # Green Service (Backup)
   app_green:
     image: ${GREEN_IMAGE}
     container_name: bluegreen_app_green
@@ -39,7 +37,6 @@ services:
     networks:
       - bluegreen_network
 
-  # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
     container_name: bluegreen_nginx
@@ -48,13 +45,37 @@ services:
       - "${NGINX_PORT}:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_logs:/var/log/nginx
     depends_on:
       - app_blue
       - app_green
     networks:
       - bluegreen_network
-    command: ["nginx", "-g", "daemon off;"]
+
+  alert_watcher:
+    build:
+      context: .
+      dockerfile: Dockerfile.watcher
+    container_name: bluegreen_watcher
+    restart: unless-stopped
+    environment:
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - ERROR_RATE_THRESHOLD=${ERROR_RATE_THRESHOLD}
+      - WINDOW_SIZE=${WINDOW_SIZE}
+      - ALERT_COOLDOWN_SEC=${ALERT_COOLDOWN_SEC}
+      - MAINTENANCE_MODE=${MAINTENANCE_MODE}
+      - DEPLOYMENT_OWNER=${DEPLOYMENT_OWNER}
+      - ENVIRONMENT_NAME=${ENVIRONMENT_NAME}
+    volumes:
+      - nginx_logs:/var/log/nginx:ro
+    depends_on:
+      - nginx
+    networks:
+      - bluegreen_network
 
 networks:
   bluegreen_network:
     driver: bridge
+
+volumes:
+  nginx_logs:
