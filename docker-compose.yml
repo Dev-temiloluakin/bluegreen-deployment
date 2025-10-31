@@ -52,7 +52,7 @@ services:
     networks:
       - bluegreen_network
 
-  alert_watcher:
+  bluegreen_watcher:
     build:
       context: .
       dockerfile: Dockerfile.watcher
